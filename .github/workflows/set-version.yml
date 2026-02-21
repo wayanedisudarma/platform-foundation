@@ -1,0 +1,73 @@
+name: Set Version And Create Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      library_version:
+        description: "Library version (format: vX.Y.Z)"
+        required: true
+      branch:
+        description: "Target branch"
+        required: true
+        default: "master"
+
+jobs:
+  set-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Validate version format
+        run: |
+          VERSION=${{ github.event.inputs.library_version }}
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. Use vX.Y.Z"
+            exit 1
+          fi
+
+      - name: Check tag not exists
+        run: |
+          VERSION=${{ github.event.inputs.library_version }}
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists!"
+            exit 1
+          fi
+
+      - name: Extract version
+        id: extract
+        run: |
+          VERSION=${{ github.event.inputs.library_version }}
+          CLEAN_VERSION=${VERSION#v}
+          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Update Maven version (multi-module safe)
+        run: |
+          mvn versions:set \
+            -DnewVersion=${{ steps.extract.outputs.version }} \
+            -DprocessAllModules=true
+          mvn versions:commit
+
+      - name: Commit version update
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -am "Release ${{ github.event.inputs.library_version }}"
+          git push origin ${{ github.event.inputs.branch }}
+
+      - name: Create tag
+        run: |
+          git tag ${{ github.event.inputs.library_version }}
+          git push origin ${{ github.event.inputs.library_version }}
