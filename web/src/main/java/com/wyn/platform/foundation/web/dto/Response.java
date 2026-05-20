@@ -15,6 +15,10 @@ public class Response<T> {
 
   private T data;
 
+  private ErrorDetails errorDetails;
+
+  private Metadata metadata;
+
   public static <T> Response<T> ok(T data) {
     return Response.<T>builder()
         .status(HttpStatus.OK.value())
@@ -23,10 +27,13 @@ public class Response<T> {
         .build();
   }
 
-  public static <T> Response<T> internalServerError(String message) {
+  public static <T> Response<T> internalServerError(
+      String message, ErrorDetails errorDetails, Metadata metadata) {
     return Response.<T>builder()
         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
         .message(message)
+        .errorDetails(errorDetails)
+        .metadata(metadata)
         .build();
   }
 
@@ -34,7 +41,27 @@ public class Response<T> {
     return Response.<T>builder().status(HttpStatus.BAD_REQUEST.value()).message(message).build();
   }
 
+  public static <T> Response<T> badRequest(
+      String message, ErrorDetails errorDetails, Metadata metadata) {
+    return Response.<T>builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .message(message)
+        .errorDetails(errorDetails)
+        .metadata(metadata)
+        .build();
+  }
+
   public static <T> Response<T> notFound(String message) {
     return Response.<T>builder().status(HttpStatus.NOT_FOUND.value()).message(message).build();
+  }
+
+  public static <T> Response<T> notFound(
+      String message, ErrorDetails errorDetails, Metadata metadata) {
+    return Response.<T>builder()
+        .status(HttpStatus.NOT_FOUND.value())
+        .message(message)
+        .errorDetails(errorDetails)
+        .metadata(metadata)
+        .build();
   }
 }
