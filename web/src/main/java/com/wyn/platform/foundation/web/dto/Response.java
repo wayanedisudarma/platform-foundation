@@ -24,44 +24,50 @@ public class Response<T> {
         .status(HttpStatus.OK.value())
         .message(HttpStatus.OK.name())
         .data(data)
+        .metadata(Metadata.builder().build())
         .build();
   }
 
-  public static <T> Response<T> internalServerError(
-      String message, ErrorDetails errorDetails, Metadata metadata) {
+  public static <T> Response<T> internalServerError(String message, ErrorDetails errorDetails) {
     return Response.<T>builder()
         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
         .message(message)
         .errorDetails(errorDetails)
-        .metadata(metadata)
+        .metadata(Metadata.builder().build())
         .build();
   }
 
   public static <T> Response<T> badRequest(String message) {
-    return Response.<T>builder().status(HttpStatus.BAD_REQUEST.value()).message(message).build();
+    return Response.<T>builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .message(message)
+        .metadata(Metadata.builder().build())
+        .build();
   }
 
-  public static <T> Response<T> badRequest(
-      String message, ErrorDetails errorDetails, Metadata metadata) {
+  public static <T> Response<T> badRequest(String message, ErrorDetails errorDetails) {
     return Response.<T>builder()
         .status(HttpStatus.BAD_REQUEST.value())
         .message(message)
         .errorDetails(errorDetails)
-        .metadata(metadata)
+        .metadata(Metadata.builder().build())
         .build();
   }
 
   public static <T> Response<T> notFound(String message) {
-    return Response.<T>builder().status(HttpStatus.NOT_FOUND.value()).message(message).build();
+    return Response.<T>builder()
+        .status(HttpStatus.NOT_FOUND.value())
+        .message(message)
+        .metadata(Metadata.builder().build())
+        .build();
   }
 
-  public static <T> Response<T> notFound(
-      String message, ErrorDetails errorDetails, Metadata metadata) {
+  public static <T> Response<T> notFound(String message, ErrorDetails errorDetails) {
     return Response.<T>builder()
         .status(HttpStatus.NOT_FOUND.value())
         .message(message)
         .errorDetails(errorDetails)
-        .metadata(metadata)
+        .metadata(Metadata.builder().build())
         .build();
   }
 }
